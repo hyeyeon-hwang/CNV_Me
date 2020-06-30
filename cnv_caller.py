@@ -10,54 +10,55 @@ import math
 import pandas as pd
 
 extended_help = """
+Copy number variation (CNV) caller.
 """
 
 # Input command line arguments
 parser = argparse.ArgumentParser(
-	description='CNV caller.',
-	formatter_class=argparse.RawDescriptionHelpFormatter,
-	epilog=extended_help)
+	description = 'CNV caller.',
+	formatter_class = argparse.RawDescriptionHelpFormatter,
+	epilog = extended_help)
 parser.add_argument(
 	'--samplesAll', 
-	required=False, 
-	type=str, 
-	default= None, 
-	metavar='<path>', 
-	help='path to a directory of all bam files')
+	required = False, 
+	type = str, 
+	default = None, 
+	metavar = '<path>', 
+	help = 'path to a directory of all bam files')
 
 parser.add_argument(
 	'--samplesControl', 
-	required=False, 
-	type=str, 
-	default= None,
-	metavar='<path>', 
-	help='path to a directory of bam control files')
+	required = False, 
+	type = str, 
+	default = None,
+	metavar = '<path>', 
+	help = 'path to a directory of bam control files')
 parser.add_argument(
 	'--samplesExperimental', 
-	required=False, 
-	type=str, 
-	default= None,
-	metavar='<path>', 
-	help='path to a directory of bam experimental files')
+	required = False, 
+	type = str, 
+	default = None,
+	metavar = '<path>', 
+	help = 'path to a directory of bam experimental files')
 parser.add_argument(
 	'--window', 
-	required=False, 
-	type=int, 
-	default= 1000,
-	metavar='<int>', 
-	help='size of the window')
+	required = False, 
+	type = int, 
+	default = 1000,
+	metavar = '<int>', 
+	help = 'size of the window')
 parser.add_argument(
 	'--sampleInfo',
-	required=False,
-	type=str,
-	metavar='<path>',
-	help='path to sample info csv file')
+	required = False,
+	type = str,
+	metavar = '<path>',
+	help = 'path to sample info csv file')
 parser.add_argument(
 	'--controlName',
-	required=False,
-	type=str,
+	required = False,
+	type = str,
 	default = 'Control',
-	metavar='<str>',
+	metavar = '<str>',
 	help = 'name of control class')
 
 arg = parser.parse_args()
@@ -65,7 +66,7 @@ arg = parser.parse_args()
 # Write print statement outputs to file
 sys.stdout = open(datetime.now().strftime('%I:%M%p_%b%d') + 'CNV_Me.print', 'w')
 
-# Chromosomes of interest
+# Chromosomes of interest for hg38
 chromosomes = []
 for i in range (1, 23): # 1..22
         chromosomes.append('chr' + str(i))
@@ -143,7 +144,8 @@ def populateCnvReads(bamfilePaths, sampleInfo):
 		recordedSex = sampleInfo.loc[samplename, 'Sex']	
 	
 		stats[bamfile]["sex"] = recordedSex
-	
+		stats[bamfile]["diagnosis"] = sampleInfo.loc[samplename, 'Diagnosis']	
+
 		# stats[bamfile]["sex"] = "male" or "female"
 		for read in samfile:
 			# Skip PCR and optical duplicate reads
@@ -210,7 +212,9 @@ def normalizeCnv(cnv, chrm, binkey, stats, numMaleSamples, numFemaleSamples, num
 	normfactorFemaleY = 0
 
 	for bamfile in cnv[chrm][binkey]:
-		if "control" in bamfile: # TODO: change to if bamfile diagnosis == "control"
+		stats[bamfile]["diagnosis"] == arg.controlName:
+		# if sampleInfo.loc[samplename, 'Diagnosis'] == arg.controlName:
+		#if "control" in bamfile: # TODO: change to if bamfile diagnosis == "control"
 			if bamfile in cnv[chrm][binkey].keys():
 				# Coverage      = sum of (reads * read length) in each bin / bin size
 				# To normalize: divide by total coverage of sample = sum of (reads * read length) in sample
@@ -349,7 +353,9 @@ if __name__ == '__main__':
 	
 	numMaleSamples = len(sampleInfo[sampleInfo['Sex'] == 'M'])
 	numFemaleSamples = len(sampleInfo[sampleInfo['Sex'] == 'F']) 	
+
 	
+
 	bamfilePaths, numControl, numControlM, numControlF, numExp = getBamfiles(arg.samplesAll, arg.samplesControl, arg.samplesExperimental, sampleInfo)
 	print(*bamfilePaths, sep='\n')
 	print(numControl)
