@@ -27,10 +27,10 @@ For each control and experimental sample: <br>
 ![normalized copy number](https://latex.codecogs.com/gif.latex?Normalized%5C%3Acopy%5C%3Anumber%20%3D%20%5Cfrac%7BNormalized%5C%3Abin%5C%3Acoverage%7D%7BNormalization%5C%3Afactor%7D) <br>
 
 ## Command line arguments
-`--samplesDir` <path> Path to a directory containing all BAM file samples or subdirectories of BAM files. <br>
-`--binSize` <int> Size of bin in base pair. Default is 1000. <br>
-`--sampleInfo` <path> Path to a sample info .csv file. Must contain `Diagnosis` and `Sex` columns. <br>
-`--controlName` <str> Name of the control class in `Diagnosis` column of sample info file. Default is "Control".
+1. `--samplesDir` <path> Path to a directory containing all BAM file samples or subdirectories of BAM files. <br>
+2. `--binSize` <int> Size of bin in base pair. Default is 1000. <br>
+3. `--sampleInfo` <path> Path to a sample info .csv file. Must contain `Diagnosis` and `Sex` columns. <br>
+4. `--controlName` <str> Name of the control class in `Diagnosis` column of sample info file. Default is "Control".
 
 ## Usage example
 On the Barbera cluster at UC Davis:
@@ -40,10 +40,10 @@ python3 cnv_caller.py --samplesDir ./ --bin 50000 --sampleInfo ./sampleInfo.csv 
 ```
 
 ## Output
-`CNV_Me_[current date and time].print` All print statments are recorded in this file. <br>
-`CNV_Me_output_[current date and time].txt` Output tab-delimited file of normalized CNV values for each bin of each chromosome of each sample. The first three columns are always `chr`, `start`, and `end`. The following columns include all control samples and then all experimental samples. The rows represent each chromosome bin that was found across all control and experimental samples.
+1. `CNV_Me_[current date and time].print` All print statments are recorded in this file. <br>
+2. `CNV_Me_output_[current date and time].txt` Output tab-delimited file of normalized CNV values for each bin of each chromosome of each sample. The first three columns are always `chr`, `start`, and `end`. The following columns include all control samples and then all experimental samples. The rows represent each chromosome bin that was found across all control and experimental samples.
 
-### Example of output file
+## Example of output file
 | chr | start | end | control_sample_1 | control_sample_2 | experimental_sample_1 | experimental_sample_2 |
 | --------------- | --------------- | --------------- | --------------- | --------------- | --------------- | --------------- |
 | chr1 | 10000 | 15000 | 2.217 | 2.283 | 1.627 | 1.504 |
