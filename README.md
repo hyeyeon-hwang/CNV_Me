@@ -9,6 +9,9 @@ Copy number variation (CNV) caller to detect large-scale structural variation us
 `--sampleInfo` <path> Path to a sample info csv file. <br>
 `--controlName` <str> Name of the control class. Default is "Control".
 
+### Workflow
+![Approach flowchart](cnv_flowchart.svg)
+
 ## Output
 `CNV_Me.print` All print statments are recorded in this file. <br>
 `CNV_Me_output.txt` Output tab-delimited file of CNV values for each window of each chromosome of each sample. The columns are 
@@ -19,4 +22,3 @@ Copy number variation (CNV) caller to detect large-scale structural variation us
 | chr1 | 10000 | 15000 | 2.217 | 2.283 | 1.627 | 1.504 |
 | ... | ... | ... | ... | ... | ... | ... |
 | chrY | 2785000 | 2790000 | 1.11 |	1.038 | 1.054	| 0.814|
-
