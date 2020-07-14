@@ -12,7 +12,8 @@ import pandas as pd
 extended_help = """
 Copy number variation (CNV) caller.
 
-Usage example: python3 cnv_caller.py --samplesDir ./ --bin 50000 --sampleInfo ./sample_info.csv
+Usage example:
+python3 cnv_caller.py --samplesDir ./DS_TD_bam --bin 5000 --sampleInfo ./DS_TD_sample_info.csv --controlName Control --testCovariate Genotype
 
 """
 
@@ -48,8 +49,24 @@ parser.add_argument(
     default = 'Control',
     metavar = '<str>',
     help = 'Name of control class.')
+parser.add_argument(
+    '--testCovariate',
+    required = False,
+    type = str,
+    default = 'Diagnosis',
+    metavar = '<str>',
+    help = 'Name of test covariate class (e.g. Diagnosis, Genotype).')
 
 arg = parser.parse_args()
+
+# TODO: If sampleInfo has no Sex column, then call python script to run SexChecker and read in predicted sex column as Sex
+# OR normalize with autosomal chromosomes, don't do male and female normalization factor
+
+# TODO: List control samples first in output file, currently done alphabetically
+
+# TODO: Option to read in excel sample info file
+
+# TODO: Messages to console and delete .print file?
 
 # Write print statement outputs to file
 sys.stdout = open('CNV_Me_' + datetime.now().strftime('%I:%M%p_%b%d') + '.print', 'w')
@@ -105,7 +122,7 @@ def getSampleNumbers(bamfilePaths):
         filename = bamfile.split("/")[-1]
         samplename = str(filename.split("_")[0])
         samplenames.append(samplename)
-        if sampleInfo.loc[samplename, 'Diagnosis'] == arg.controlName:
+        if sampleInfo.loc[samplename, arg.testCovariate] == arg.controlName:
             numControl += 1 
             if sampleInfo.loc[samplename, 'Sex'] == 'M':
                 numControlM += 1
@@ -152,7 +169,8 @@ def populateCnvReads(bamfilePaths, sampleInfo):
         recordedSex = sampleInfo.loc[samplename, 'Sex'] 
     
         stats[bamfile]["sex"] = recordedSex
-        stats[bamfile]["diagnosis"] = sampleInfo.loc[samplename, 'Diagnosis']   
+        # stats[bamfile]["diagnosis"] = sampleInfo.loc[samplename, 'Diagnosis']   
+        stats[bamfile][arg.testCovariate] = sampleInfo.loc[samplename, arg.testCovariate]   
 
         # stats[bamfile]["sex"] = "male" or "female"
         for read in samfile:
@@ -221,7 +239,7 @@ def normalizeCnv(cnv, chrm, binkey, stats, numMaleSamples, numFemaleSamples, num
 
     for bamfile in cnv[chrm][binkey]:
         # Control samples
-        stats[bamfile]["diagnosis"] == arg.controlName:
+        if stats[bamfile][arg.testCovariate] == arg.controlName:
             if bamfile in cnv[chrm][binkey].keys():
                 # Coverage      = sum of (reads * read length) in each bin / bin size
                 # To normalize: divide by total coverage of sample = sum of (reads * read length) in sample
@@ -320,6 +338,7 @@ def outputCnv(cnv, samples):
     with open('CNV_Me_output_' + datetime.now().strftime('%I:%M%p_%b%d') + '.txt', 'w', newline='') as outfile:
         outfile = csv.writer(outfile, delimiter='\t')
         samples.sort()
+        # TODO: done alphabetically, list control samples first
         outfile.writerow(['chr', 'start', 'end', *samples])
         
         for chrm in cnv:
@@ -349,15 +368,14 @@ if __name__ == '__main__':
 
     sampleInfo = pd.read_csv(arg.sampleInfo, converters={i: str for i in range(len(pd.read_csv(arg.sampleInfo)))})
     sampleInfo.index = list(sampleInfo['Name'])
-    
-    # Convert sex label to M and F
-	for i in range(0, len(sampleInfo)):
-	    if ('M' or 'm' or 'Male' or 'male') in sampleInfo.iloc[i]['Sex']:
-	        sampleInfo.iloc[i]['Sex'] = 'M'
-	    if ('F' or 'f' or 'Female' or 'female') in sampleInfo.iloc[i]['Sex']:
-	        sampleInfo.iloc[i]['Sex'] = 'F'
 
- 
+    # Convert sex label to M and F
+    for i in range(0, len(sampleInfo)):
+        if ('M' or 'm' or 'Male' or 'male') in sampleInfo.iloc[i]['Sex']:
+            sampleInfo.iloc[i]['Sex'] = 'M'
+        if ('F' or 'f' or 'Female' or 'female') in sampleInfo.iloc[i]['Sex']:
+            sampleInfo.iloc[i]['Sex'] = 'F'
+
     numMaleSamples = len(sampleInfo[sampleInfo['Sex'] == 'M'])
     numFemaleSamples = len(sampleInfo[sampleInfo['Sex'] == 'F'])    
 
@@ -368,6 +386,10 @@ if __name__ == '__main__':
     print(*bamfilePaths, sep='\n')
     print(numControl)
     print(numExp)
+    print(samplenames)
+    print(numControlM)
+    print(numControlF)
+
     end_getBamfiles = datetime.now()
     print('getBamfiles() %s' % (end_getBamfiles - timestart))
 
