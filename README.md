@@ -49,3 +49,7 @@ python3 cnv_caller.py --samplesDir ./ --bin 50000 --sampleInfo ./sampleInfo.csv 
 | chr1 | 10000 | 15000 | 2.217 | 2.283 | 1.627 | 1.504 |
 | ... | ... | ... | ... | ... | ... | ... |
 | chrY | 2785000 | 2790000 | 1.11 |	1.038 | 1.054	| 0.814|
+
+## Authorship
+Hyeyeon Hwang developed the program with supervision from Dr. [Benjamin Laufer](https://github.com/ben-laufer), Dr. [Ian Korf](https://github.com/KorfLab), and Dr. Janine LaSalle.
+
